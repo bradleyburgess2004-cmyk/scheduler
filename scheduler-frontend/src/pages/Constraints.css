@@ -1,0 +1,250 @@
+.constraints-intro {
+  max-width: 640px;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.constraints-search {
+  display: block;
+  margin-bottom: 1.25rem;
+  width: 260px;
+}
+
+.constraint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 640px;
+}
+
+.constraint-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem 1.15rem;
+}
+
+.constraint-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.constraint-enabled {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.constraint-name {
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.badge-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.constraint-description {
+  font-size: 0.83rem;
+  color: var(--color-text-muted);
+  margin: 0.4rem 0 0.6rem;
+}
+
+.constraint-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.constraint-fields label,
+.field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.weight-field {
+  max-width: 140px;
+}
+
+.constraint-fields .hint {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.no-params {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.always-enforced {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.param-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+}
+
+.field-label {
+  font-weight: 500;
+}
+
+.day-multi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.day-multi-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 400;
+}
+
+.employee-pairs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.employee-pair-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.employee-pair-row select {
+  min-width: 160px;
+}
+
+.constraint-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.7rem;
+}
+
+.saved-indicator {
+  color: var(--color-success);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.error-indicator {
+  color: var(--color-danger);
+  font-size: 0.85rem;
+}
+
+.constraints-section-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 1.5rem 0;
+  max-width: 640px;
+}
+
+.position-staffing {
+  margin-bottom: 1rem;
+}
+
+.position-staffing h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+}
+
+.position-rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 720px;
+  margin-top: 0.75rem;
+}
+
+.position-rule-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.position-rule-fields {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.position-rule-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.requirement-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.requirement-row {
+  display: grid;
+  grid-template-columns: 230px 110px 110px 130px auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.requirement-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.5rem;
+}
+
+.requirement-days label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.76rem;
+  font-weight: 400;
+  color: var(--color-text);
+}
+
+.requirement-header {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.add-rule-button {
+  margin-top: 0.9rem;
+}
+
+.danger-link {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+}

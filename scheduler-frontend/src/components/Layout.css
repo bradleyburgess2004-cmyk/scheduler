@@ -1,0 +1,88 @@
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-nav {
+  width: 232px;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: 1.5rem 1rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.app-nav-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+  padding: 0 0.6rem;
+}
+
+.app-nav-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  box-shadow: var(--shadow-sm);
+}
+
+.app-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.app-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--color-text-muted);
+  font-size: 0.87rem;
+  font-weight: 500;
+  transition: background-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.app-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.app-nav a:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.app-nav a.active {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.app-nav a.active .app-nav-icon {
+  opacity: 1;
+}
+
+.app-content {
+  flex: 1;
+  padding: 2.25rem 2.75rem;
+  min-width: 0;
+}

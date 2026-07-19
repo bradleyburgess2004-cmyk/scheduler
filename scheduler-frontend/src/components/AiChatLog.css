@@ -1,0 +1,63 @@
+.ai-message {
+  display: flex;
+}
+
+.ai-message-user {
+  justify-content: flex-end;
+}
+
+.ai-message-assistant {
+  justify-content: flex-start;
+}
+
+.ai-bubble {
+  max-width: 80%;
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--radius-md);
+  font-size: 0.87rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.ai-bubble p {
+  margin: 0;
+}
+
+.ai-message-user .ai-bubble {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast, #fff);
+}
+
+.ai-message-assistant .ai-bubble {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.ai-thinking {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.ai-schedule-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.ai-schedule-actions button {
+  font-size: 0.78rem;
+  padding: 4px 10px;
+}
+
+.ai-schedule-status {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+}
+
+.ai-success {
+  color: var(--color-success);
+}
+
+.ai-errors {
+  color: var(--color-danger);
+}

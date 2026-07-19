@@ -1,0 +1,283 @@
+.schedule-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.schedule-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.schedule-summary {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.schedule-summary .warning,
+.warning {
+  color: var(--color-danger);
+}
+
+.edited-badge {
+  font-size: 0.78rem;
+  padding: 3px 9px;
+  border-radius: 10px;
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  font-weight: 500;
+}
+
+.schedule-hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.6rem;
+}
+
+.schedule-empty {
+  padding: 1rem 1.2rem;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+}
+
+.schedule-empty code {
+  display: inline-block;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.schedule-grid-wrapper {
+  overflow-x: auto;
+  max-height: 75vh;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.schedule-grid {
+  font-size: 0.83rem;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.schedule-grid th,
+.schedule-grid td {
+  border-bottom: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  padding: 6px 10px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.schedule-grid thead th {
+  position: sticky;
+  top: 0;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  z-index: 2;
+}
+
+.schedule-grid .employee-col {
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+  z-index: 1;
+  min-width: 150px;
+  font-weight: 500;
+}
+
+.schedule-grid thead th.employee-col {
+  z-index: 3;
+  background: var(--color-bg);
+}
+
+.schedule-grid tfoot td {
+  font-weight: 600;
+  background: var(--color-bg);
+}
+
+.schedule-grid tr.department-row td {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  position: sticky;
+  left: 0;
+}
+
+.schedule-grid td.drop-hover {
+  background: var(--color-primary-bg);
+  outline: 2px dashed var(--color-primary);
+  outline-offset: -2px;
+}
+
+.schedule-grid td.availability-available {
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+}
+
+.schedule-grid td.availability-unavailable {
+  background: color-mix(in srgb, var(--color-danger) 9%, transparent);
+}
+
+.schedule-grid td.availability-available.drop-hover,
+.schedule-grid td.availability-unavailable.drop-hover {
+  background: var(--color-primary-bg);
+}
+
+.availability-legend {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.availability-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.availability-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid var(--color-border);
+}
+
+.availability-swatch.availability-available {
+  background: color-mix(in srgb, var(--color-success) 25%, transparent);
+}
+
+.availability-swatch.availability-unavailable {
+  background: color-mix(in srgb, var(--color-danger) 22%, transparent);
+}
+
+.availability-swatch.availability-unknown {
+  background: transparent;
+}
+
+.shift-chip {
+  padding: 4px 7px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-bg);
+  border: 1px solid transparent;
+  margin-bottom: 4px;
+  cursor: grab;
+  user-select: none;
+}
+
+.shift-chip:active {
+  cursor: grabbing;
+}
+
+.shift-chip.dragging {
+  opacity: 0.35;
+}
+
+.shift-chip.dragging-overlay {
+  cursor: grabbing;
+  box-shadow: var(--shadow-md);
+}
+
+.shift-chip.understaffed {
+  background: var(--color-danger-bg);
+}
+
+.shift-chip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.shift-role {
+  font-weight: 600;
+}
+
+.shift-chip-buttons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.shift-remove,
+.shift-edit {
+  border: none;
+  background: none;
+  padding: 0 2px;
+  font-size: 0.9rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.shift-remove:hover {
+  color: var(--color-danger);
+  border: none;
+}
+
+.shift-edit:hover {
+  color: var(--color-primary);
+  border: none;
+}
+
+.shift-chip-editing {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  cursor: default;
+  min-width: 150px;
+}
+
+.shift-chip-editing select {
+  font-size: 0.78rem;
+}
+
+.shift-edit-times {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.shift-edit-times input {
+  width: 0;
+  flex: 1;
+  font-size: 0.78rem;
+}
+
+.shift-edit-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.shift-edit-actions button {
+  flex: 1;
+  font-size: 0.76rem;
+  padding: 2px 4px;
+}
+
+.shift-time {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}

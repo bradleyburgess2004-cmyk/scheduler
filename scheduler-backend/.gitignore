@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+
+Time Off & Request Report.txt
+.Rhistory
+
+weekly_workflow/state/hourly_rates.csv
+weekly_workflow/state/employees.csv
