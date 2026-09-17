@@ -60,6 +60,8 @@ export function deleteEmployeeRole(employeeId: number, roleId: number): Promise<
   return request(`/employee-roles/${employeeId}/${roleId}`, { method: 'DELETE' })
 }
 
+export type ShiftPreference = 'day' | 'night' | 'both'
+
 export interface Employee {
   employee_id: number
   restaurant_id: number
@@ -73,6 +75,7 @@ export interface Employee {
   overtime_limit: number | null
   external_employee_id: string | null
   min_weekly_hours: number | null
+  shift_preference: ShiftPreference
 }
 
 export interface EmployeeInput {
@@ -86,6 +89,7 @@ export interface EmployeeInput {
   max_weekly_hours?: number | null
   overtime_limit?: number | null
   min_weekly_hours?: number | null
+  shift_preference?: ShiftPreference
 }
 
 export function getEmployees(): Promise<Employee[]> {
@@ -182,10 +186,20 @@ export interface GenerateScheduleResult {
   total_cost: number
   understaffed_shifts: number
   locked_assignments_skipped: number
+  template_id_used: number | null
+  template_entries_applied: number
+  template_entries_unmatched: number
 }
 
-export function generateSchedule(restaurantId: number, weekStart: string): Promise<GenerateScheduleResult> {
-  return request(`/restaurants/${restaurantId}/schedule/generate?week_start=${weekStart}`, {
+export function generateSchedule(
+  restaurantId: number,
+  weekStart: string,
+  options?: { templateId?: number | null; templateWeight?: number | null }
+): Promise<GenerateScheduleResult> {
+  const params = new URLSearchParams({ week_start: weekStart })
+  if (options?.templateId) params.set('template_id', String(options.templateId))
+  if (options?.templateWeight != null) params.set('template_weight', String(options.templateWeight))
+  return request(`/restaurants/${restaurantId}/schedule/generate?${params.toString()}`, {
     method: 'POST',
   })
 }
@@ -228,6 +242,7 @@ export interface ConstraintCatalogItem {
   description: string | null
   class_name: string | null
   parameter_spec: FieldSpec[] | null
+  supports_multiple: boolean
 }
 
 export function getConstraints(): Promise<ConstraintCatalogItem[]> {
@@ -340,6 +355,72 @@ export async function uploadAvailability(
     throw new Error(`Upload failed: ${response.status} ${body}`)
   }
   return response.json()
+}
+
+export interface ScheduleTemplateEntry {
+  entry_id: number | null
+  raw_employee_label: string
+  employee_id: number | null
+  employee_name: string | null
+  day_of_week: number
+  day_name: string
+  start_time: string
+  end_time: string
+}
+
+export interface ScheduleTemplateParseResult {
+  rows_read: number
+  entries: ScheduleTemplateEntry[]
+  unmatched_labels: string[]
+  unparsed_cells: string[]
+}
+
+export async function parseScheduleTemplate(restaurantId: number, file: File): Promise<ScheduleTemplateParseResult> {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await fetch(`${API_BASE_URL}/restaurants/${restaurantId}/schedule-templates/parse`, {
+    method: 'POST',
+    body: formData,
+  })
+  if (!response.ok) {
+    const body = await response.text()
+    throw new Error(`Parse failed: ${response.status} ${body}`)
+  }
+  return response.json()
+}
+
+export interface ScheduleTemplateSaveResult {
+  template_id: number
+  name: string
+  entries_saved: number
+  entries_skipped_unmatched: number
+}
+
+export function saveScheduleTemplate(
+  restaurantId: number,
+  name: string,
+  entries: ScheduleTemplateEntry[]
+): Promise<ScheduleTemplateSaveResult> {
+  return request(`/restaurants/${restaurantId}/schedule-templates`, {
+    method: 'POST',
+    body: JSON.stringify({ name, entries }),
+  })
+}
+
+export interface ScheduleTemplateSummary {
+  template_id: number
+  name: string
+  created_at: string
+  entry_count: number
+}
+
+export function listScheduleTemplates(restaurantId: number): Promise<ScheduleTemplateSummary[]> {
+  return request(`/restaurants/${restaurantId}/schedule-templates`)
+}
+
+export function deleteScheduleTemplate(restaurantId: number, templateId: number): Promise<void> {
+  return request(`/restaurants/${restaurantId}/schedule-templates/${templateId}`, { method: 'DELETE' })
 }
 
 export interface TimeOffRecord {

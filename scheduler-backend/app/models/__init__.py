@@ -13,3 +13,5 @@ from app.models.constraint import Constraint
 from app.models.restaurant_constraint import RestaurantConstraint
 from app.models.employee_role import EmployeeRole
 from app.models.department_target import DepartmentTarget
+from app.models.schedule_template import ScheduleTemplate
+from app.models.schedule_template_entry import ScheduleTemplateEntry

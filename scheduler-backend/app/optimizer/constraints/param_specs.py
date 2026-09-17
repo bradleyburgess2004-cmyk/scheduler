@@ -85,10 +85,6 @@ CONSTRAINT_PARAM_SPECS: dict[str, list[FieldSpec]] = {
         FieldSpec("primary_employee_id", "Employee", "employee"),
         FieldSpec("companion_employee_id", "Must always be scheduled with", "employee"),
     ],
-    "MinLeadershipPresentConstraint": [
-        FieldSpec("day", "Day", "day"),
-        FieldSpec("min_count", "Minimum leaders present", "number"),
-    ],
     "FairHoursDistributionConstraint": [],
     "EqualWeekendRotationConstraint": [
         FieldSpec("lookback_weeks", "Look-back window (weeks)", "number"),
@@ -122,6 +118,33 @@ CONSTRAINT_PARAM_SPECS: dict[str, list[FieldSpec]] = {
         FieldSpec("modified_end_time", "Modified closing time", "time", optional=True),
     ],
 }
+
+
+# Field types that identify "which row" a constraint instance is about
+# (a specific employee, role, day, or date). A class with at least one
+# field of these types can meaningfully have more than one row per
+# restaurant -- e.g. one MustWorkWithConstraint row per pair of
+# employees, one ModifiedStoreHoursConstraint row per date override.
+# Everything else is a singleton (a plain number/boolean knob like "max
+# 5 consecutive days"): at most one row per restaurant makes sense, so
+# the Constraints page doesn't offer "+ Add rule" for it. Also used by
+# app/services/ai_assistant.py to disambiguate which existing row an AI
+# proposal should update.
+IDENTITY_FIELD_TYPES = {"employee", "role", "day", "date"}
+
+# MinPositionStaffingConstraint's identifying field (position_value) is
+# typed "text" like several non-identifying fields on other classes, so
+# it can't be inferred purely from field type -- explicit override.
+EXPLICIT_MULTI_ROW_CLASSES = {"MinPositionStaffingConstraint"}
+
+
+def supports_multiple_rows(class_name: str) -> bool:
+    """Whether more than one restaurant_constraints row for this
+    class_name is meaningful (see IDENTITY_FIELD_TYPES above) -- drives
+    whether the Constraints page shows "+ Add rule" for it."""
+    if class_name in EXPLICIT_MULTI_ROW_CLASSES:
+        return True
+    return any(f.type in IDENTITY_FIELD_TYPES for f in CONSTRAINT_PARAM_SPECS.get(class_name, []))
 
 
 def _assert_specs_match_registry():

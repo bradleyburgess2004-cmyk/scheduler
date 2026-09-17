@@ -36,7 +36,6 @@ from app.optimizer.constraints.relationships import (
     MustWorkWithConstraint,
 )
 from app.optimizer.constraints.coverage_fairness import (
-    MinLeadershipPresentConstraint,
     FairHoursDistributionConstraint,
     EqualWeekendRotationConstraint,
     DepartmentLaborBudgetConstraint,
@@ -71,7 +70,6 @@ _CONSTRAINT_CLASSES = [
     CanWorkHolidaysConstraint,
     CannotWorkWithConstraint,
     MustWorkWithConstraint,
-    MinLeadershipPresentConstraint,
     FairHoursDistributionConstraint,
     EqualWeekendRotationConstraint,
     DepartmentLaborBudgetConstraint,

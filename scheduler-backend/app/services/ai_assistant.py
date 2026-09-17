@@ -37,7 +37,7 @@ from app.models.role import Role
 from app.models.employee import Employee
 
 from app.optimizer.constraints.registry import CONSTRAINT_REGISTRY
-from app.optimizer.constraints.param_specs import CONSTRAINT_PARAM_SPECS
+from app.optimizer.constraints.param_specs import CONSTRAINT_PARAM_SPECS, IDENTITY_FIELD_TYPES
 
 MODEL = "claude-haiku-4-5-20251001"
 
@@ -407,18 +407,25 @@ def validate_constraint_params(
     return errors
 
 
-# Most constraints have at most one restaurant_constraints row per
-# (restaurant_id, constraint_id). These two are deliberate exceptions,
-# each needing a separate row per some sub-key -- MinPositionStaffingConstraint
-# per position (Kitchen Saturdays, Front Desk Sundays, ...), LockedAssignmentConstraint
-# per employee (locking Bob into Friday grill and Sue into Saturday host are two
-# independent rows, not one). Matching "the existing row" for these has to
-# disambiguate by that sub-key, or the AI assistant would silently overwrite an
-# unrelated position's/employee's rule instead of adding a new one.
-MULTI_ROW_DISAMBIGUATION_KEY = {
-    "MinPositionStaffingConstraint": "position_value",
-    "LockedAssignmentConstraint": "employee_id",
+# The Constraints page lets a manager add as many rows as they want for any
+# parameterized constraint -- one per employee, per day, per role, etc. (see
+# Constraints.tsx's "+ Add rule"). So when the AI assistant proposes
+# configuring a constraint, "the existing row to update" can't just be
+# "the one row for this restaurant/constraint_id" anymore -- it has to
+# disambiguate by whichever parameter(s) actually identify a specific rule,
+# or it would silently overwrite an unrelated employee's/day's/role's rule
+# instead of adding a new one.
+#
+# Only classes with NO identifying parameter (a plain number/boolean knob
+# like "max 5 consecutive days") are true singletons -- at most one row per
+# restaurant makes sense for those, so they keep the old rows[0] behavior.
+# MinPositionStaffingConstraint is the one explicit override: its identifying
+# field (position_value) is typed "text" like several non-identifying fields
+# on other classes, so it can't be inferred purely from field type.
+_EXPLICIT_DISAMBIGUATION_KEYS = {
+    "MinPositionStaffingConstraint": ["position_value"],
 }
+_IDENTITY_FIELD_TYPES = IDENTITY_FIELD_TYPES
 
 
 def _find_existing_restaurant_constraint(db, restaurant_id, catalog_row, class_name, parameter_json):
@@ -430,15 +437,16 @@ def _find_existing_restaurant_constraint(db, restaurant_id, catalog_row, class_n
         )
         .all()
     )
-    disambiguation_key = MULTI_ROW_DISAMBIGUATION_KEY.get(class_name)
-    if disambiguation_key is None:
+    fields = CONSTRAINT_PARAM_SPECS.get(class_name, [])
+    identity_keys = _EXPLICIT_DISAMBIGUATION_KEYS.get(class_name) or [
+        f.key for f in fields if f.type in _IDENTITY_FIELD_TYPES
+    ]
+    if not identity_keys:
         return rows[0] if rows else None
 
-    disambiguation_value = parameter_json.get(disambiguation_key)
-    if disambiguation_value is None:
-        return None
     for row in rows:
-        if (row.parameter_json or {}).get(disambiguation_key) == disambiguation_value:
+        existing_params = row.parameter_json or {}
+        if all(existing_params.get(k) == parameter_json.get(k) for k in identity_keys):
             return row
     return None
 

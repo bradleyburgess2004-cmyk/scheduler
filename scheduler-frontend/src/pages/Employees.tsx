@@ -12,6 +12,7 @@ import {
   type Role,
   type EmployeeRole,
   type EmployeeInput,
+  type ShiftPreference,
 } from '../api'
 import { useCurrentRestaurant } from '../hooks/useCurrentRestaurant'
 import { SORT_OPTIONS, type SortKey } from '../sortUtils'
@@ -26,6 +27,13 @@ const EMPTY_FORM: EmployeeInput = {
   hourly_rate: null,
   max_weekly_hours: null,
   min_weekly_hours: null,
+  shift_preference: 'both',
+}
+
+const SHIFT_PREFERENCE_LABELS: Record<ShiftPreference, string> = {
+  day: 'Days only',
+  night: 'Nights only',
+  both: 'Days & nights',
 }
 
 function RoleMultiSelectDropdown({
@@ -181,6 +189,7 @@ function Employees() {
       hourly_rate: emp.hourly_rate ? Number(emp.hourly_rate) : null,
       max_weekly_hours: emp.max_weekly_hours,
       min_weekly_hours: emp.min_weekly_hours,
+      shift_preference: emp.shift_preference,
     })
     // Union of this employee's employee_roles rows (what the solver actually
     // uses for eligibility) with their legacy single role_id, in case that
@@ -295,6 +304,7 @@ function Employees() {
                 <th>Roles</th>
                 <th>Hourly Rate</th>
                 <th>Min / Max Hrs</th>
+                <th>Shift Preference</th>
                 <th>Active</th>
                 <th></th>
               </tr>
@@ -306,6 +316,7 @@ function Employees() {
                   <td>{(roleNamesByEmployeeId.get(emp.employee_id) ?? []).join(', ')}</td>
                   <td>{emp.hourly_rate ? `$${emp.hourly_rate}/hr` : '—'}</td>
                   <td>{emp.min_weekly_hours ?? '—'} / {emp.max_weekly_hours ?? '—'}</td>
+                  <td>{SHIFT_PREFERENCE_LABELS[emp.shift_preference]}</td>
                   <td>{emp.active ? 'Active' : 'Inactive'}</td>
                   <td className="employee-row-actions">
                     <button onClick={() => openEditForm(emp)}>Edit</button>
@@ -364,6 +375,20 @@ function Employees() {
               >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
+              </select>
+            </label>
+
+            <label>
+              Shift preference
+              <select
+                value={form.shift_preference ?? 'both'}
+                onChange={(e) =>
+                  setForm({ ...form, shift_preference: e.target.value as ShiftPreference })
+                }
+              >
+                <option value="both">Days & nights</option>
+                <option value="day">Days only</option>
+                <option value="night">Nights only</option>
               </select>
             </label>
 

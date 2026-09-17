@@ -9,11 +9,13 @@ import {
   updateAssignment,
   deleteAssignment,
   updateShift,
+  listScheduleTemplates,
   type ScheduleResponse,
   type ScheduledShift,
   type EmployeeScheduleRow,
   type Role,
   type Availability,
+  type ScheduleTemplateSummary,
 } from '../api'
 import { useCurrentRestaurant } from '../hooks/useCurrentRestaurant'
 import { addDays, formatDate, mondayOfWeek, parseLocalDate, weekdayLabel, shiftHours } from '../dateUtils'
@@ -71,6 +73,10 @@ function Schedule() {
   const [roles, setRoles] = useState<Role[]>([])
   const [availability, setAvailability] = useState<Availability[]>([])
   const [showAvailability, setShowAvailability] = useState(true)
+  const [templates, setTemplates] = useState<ScheduleTemplateSummary[]>([])
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null)
+  const [templateWeight, setTemplateWeight] = useState(30)
+  const [templateResultNote, setTemplateResultNote] = useState<string | null>(null)
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
@@ -99,6 +105,15 @@ function Schedule() {
       .then(setAvailability)
       .catch(() => {
         // Non-fatal -- the overlay just won't render if this fails.
+      })
+  }, [restaurant])
+
+  useEffect(() => {
+    if (!restaurant) return
+    listScheduleTemplates(restaurant.restaurant_id)
+      .then(setTemplates)
+      .catch(() => {
+        // Non-fatal -- the template picker just won't have options if this fails.
       })
   }, [restaurant])
 
@@ -230,14 +245,26 @@ function Schedule() {
     setGenerating(true)
     setGenerateError(null)
     setLockWarning(null)
+    setTemplateResultNote(null)
     try {
-      const result = await generateSchedule(restaurant.restaurant_id, formatDate(weekStart))
+      const result = await generateSchedule(restaurant.restaurant_id, formatDate(weekStart), {
+        templateId: selectedTemplateId,
+        templateWeight: selectedTemplateId ? templateWeight : null,
+      })
       const fresh = await getSchedule(restaurant.restaurant_id, formatDate(weekStart))
       setSchedule(fresh)
       if (result.locked_assignments_skipped > 0) {
         setLockWarning(
           `${result.locked_assignments_skipped} locked assignment(s) couldn't be honored -- ` +
           `the employee wasn't available (or eligible) for that shift.`
+        )
+      }
+      if (result.template_id_used != null) {
+        setTemplateResultNote(
+          `Template applied: ${result.template_entries_applied} shift(s) matched this week` +
+          (result.template_entries_unmatched > 0
+            ? `, ${result.template_entries_unmatched} unmatched (no shift this week at that day/time/role).`
+            : '.')
         )
       }
     } catch (err) {
@@ -371,6 +398,35 @@ function Schedule() {
           Show availability
         </label>
 
+        <label className="schedule-toggle">
+          Seed from template
+          <select
+            value={selectedTemplateId ?? ''}
+            onChange={(e) => setSelectedTemplateId(e.target.value ? Number(e.target.value) : null)}
+          >
+            <option value="">None</option>
+            {templates.map((t) => (
+              <option key={t.template_id} value={t.template_id}>
+                {t.name} ({t.entry_count} shifts)
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {selectedTemplateId != null && (
+          <label className="schedule-toggle">
+            Adherence weight ($/shift)
+            <input
+              type="number"
+              min={0}
+              max={1000}
+              value={templateWeight}
+              onChange={(e) => setTemplateWeight(Number(e.target.value))}
+              style={{ width: '5rem' }}
+            />
+          </label>
+        )}
+
         <button onClick={handleGenerate} disabled={generating || loading}>
           {generating ? 'Generating...' : 'Generate schedule'}
         </button>
@@ -383,6 +439,7 @@ function Schedule() {
       )}
       {generateError && <p className="form-error">Could not generate a schedule: {generateError}</p>}
       {lockWarning && <p className="warning">{lockWarning}</p>}
+      {templateResultNote && <p className="schedule-hint">{templateResultNote}</p>}
 
       {loading && <p>Loading schedule...</p>}
       {error && <p className="form-error">Failed to load schedule: {error}</p>}

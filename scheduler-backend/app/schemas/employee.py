@@ -1,6 +1,9 @@
 from datetime import date
 from decimal import Decimal
+from typing import Literal
 from pydantic import BaseModel
+
+ShiftPreference = Literal["day", "night", "both"]
 
 
 class EmployeeCreate(BaseModel):
@@ -24,6 +27,8 @@ class EmployeeCreate(BaseModel):
     external_employee_id: str | None = None
 
     min_weekly_hours: int | None = None
+
+    shift_preference: ShiftPreference = "both"
 
 
 class EmployeeResponse(BaseModel):
@@ -50,6 +55,8 @@ class EmployeeResponse(BaseModel):
     external_employee_id: str | None
 
     min_weekly_hours: int | None
+
+    shift_preference: ShiftPreference
 
 
     class Config:

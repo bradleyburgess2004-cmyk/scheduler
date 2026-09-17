@@ -63,3 +63,6 @@ class GenerateScheduleResponse(BaseModel):
     total_cost: float
     understaffed_shifts: int
     locked_assignments_skipped: int
+    template_id_used: int | None = None
+    template_entries_applied: int = 0
+    template_entries_unmatched: int = 0

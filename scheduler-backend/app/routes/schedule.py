@@ -165,19 +165,26 @@ def generate_schedule(
     restaurant_id: int,
     week_start: date_type = Query(..., description="First day of the week, YYYY-MM-DD"),
     time_limit: int = Query(120, ge=10, le=300, description="Max solver time in seconds"),
+    template_id: int | None = Query(None, description="Optional ScheduleTemplate to softly bias assignments toward"),
+    template_weight: float | None = Query(
+        None, ge=0, le=1000,
+        description="Dollar-equivalent reward per honored template shift; higher = stronger adherence",
+    ),
     db: Session = Depends(get_db),
 ):
     """Runs the CP-SAT solver for this restaurant/week and saves the
     result, replacing any existing assignments for that week -- the
     same thing `python -m app.optimizer.scheduler` does from the CLI,
     exposed so the frontend doesn't need shell access to generate a
-    schedule."""
+    schedule. If template_id is given, the solver is softly biased
+    toward reproducing that saved schedule's pattern, without ever
+    overriding availability/time-off/coverage/other enabled constraints."""
 
     restaurant = db.query(Restaurant).filter(Restaurant.restaurant_id == restaurant_id).first()
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
 
-    result = solve_schedule(db, restaurant_id, week_start, time_limit)
+    result = solve_schedule(db, restaurant_id, week_start, time_limit, template_id, template_weight)
     if result is None:
         raise HTTPException(
             status_code=422,
@@ -194,4 +201,7 @@ def generate_schedule(
         total_cost=round(result["cost"], 2),
         understaffed_shifts=len(result["gaps"]),
         locked_assignments_skipped=len(result["skipped_locks"]),
+        template_id_used=result["template_id"],
+        template_entries_applied=result["template_entries_applied"],
+        template_entries_unmatched=result["template_entries_unmatched"],
     )

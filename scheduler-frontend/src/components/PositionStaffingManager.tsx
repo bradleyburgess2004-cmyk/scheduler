@@ -83,7 +83,7 @@ function ruleFromRow(configId: number, enabled: boolean, params: Record<string, 
 
 let nextTempKey = 0
 
-function PositionStaffingManager() {
+function PositionStaffingManager({ onChange }: { onChange?: () => void }) {
   const { restaurant } = useCurrentRestaurant()
   const [constraintId, setConstraintId] = useState<number | null>(null)
   const [roles, setRoles] = useState<Role[]>([])
@@ -198,6 +198,7 @@ function PositionStaffingManager() {
           )
         )
       }
+      onChange?.()
     } catch (err) {
       setRules((prev) =>
         prev.map((r) =>
@@ -218,6 +219,7 @@ function PositionStaffingManager() {
     try {
       await deleteRestaurantConstraint(rule.configId)
       setRules((prev) => prev.filter((r) => r.key !== key))
+      onChange?.()
     } catch (err) {
       setRules((prev) =>
         prev.map((r) =>
@@ -231,9 +233,11 @@ function PositionStaffingManager() {
   if (error) return <p className="form-error">{error}</p>
 
   return (
-    <div className="position-staffing">
-      <h2>Minimum Position Staffing</h2>
-      <p className="constraints-intro">
+    <div className="constraint-group position-staffing">
+      <div className="constraint-group-header">
+        <span className="constraint-name">Minimum Position Staffing</span>
+      </div>
+      <p className="constraint-description">
         Require a minimum headcount for a role or department during specific day/time windows —
         e.g. at least 5 people in Back of House on Saturday from 5:00 AM to 11:00 AM. Add one rule
         per position; each rule can cover several day/time slots. If a window can never be fully
@@ -242,8 +246,11 @@ function PositionStaffingManager() {
       </p>
 
       <div className="position-rule-list">
-        {rules.map((rule) => (
+        {rules.map((rule, index) => (
           <div key={rule.key} className="constraint-card position-rule-card">
+            {rules.length > 1 && (
+              <p className="constraint-rule-index">Rule {index + 1} of {rules.length}</p>
+            )}
             <div className="constraint-header">
               <label className="constraint-enabled">
                 <input
@@ -251,7 +258,7 @@ function PositionStaffingManager() {
                   checked={rule.enabled}
                   onChange={(e) => patchRule(rule.key, { enabled: e.target.checked })}
                 />
-                <span className="constraint-name">{rule.positionValue || 'New position rule'}</span>
+                <span className="constraint-name">Enabled</span>
               </label>
             </div>
 

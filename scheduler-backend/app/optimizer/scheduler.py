@@ -34,7 +34,9 @@ from app.models.shift_template import ShiftTemplate
 from app.models.shift import Shift
 from app.models.assignment import Assignment
 from app.models.generated_assignment import GeneratedAssignment
+from app.models.schedule_template_entry import ScheduleTemplateEntry
 from app.optimizer.constraints import load_constraints_for_restaurant
+from app.optimizer.constraints.template_adherence import TemplateAdherenceConstraint
 from app.optimizer.time_utils import day_of_week_from_date, shift_hours
 
 SHORTFALL_PENALTY = 1_000_000
@@ -287,6 +289,48 @@ def build_eligible_assignment_vars(model, employees, shifts, availability_by_emp
     return x
 
 
+def build_template_matches(db, template_id, shifts):
+    """Resolves a ScheduleTemplate's saved (employee, day_of_week,
+    start_time, end_time) entries against this week's actual shifts.
+    Matching uses the employee's CURRENT Employee.role_id (their
+    primary role) rather than any role stored on the template entry --
+    the CSV format has no role column, and this also means a
+    role change since the template was captured is followed
+    automatically rather than producing a stale/wrong match.
+
+    Only an exact (day_of_week, start_time, end_time, role_id) match
+    counts -- v1 does not attempt fuzzy/overlapping time matching, so a
+    week whose ShiftTemplate times differ from when the CSV was made
+    simply produces unmatched entries rather than a best-effort guess.
+
+    Returns (matched_shift_ids_by_employee, entries_applied, entries_unmatched).
+    """
+    entries = (
+        db.query(ScheduleTemplateEntry, Employee.role_id)
+        .join(Employee, Employee.employee_id == ScheduleTemplateEntry.employee_id)
+        .filter(ScheduleTemplateEntry.template_id == template_id)
+        .all()
+    )
+
+    shift_lookup = {
+        (s.day_of_week, s.start_time, s.end_time, s.role_id): sid
+        for sid, s in shifts.items()
+    }
+
+    matched_shift_ids_by_employee = defaultdict(set)
+    entries_applied = 0
+    entries_unmatched = 0
+    for entry, role_id in entries:
+        sid = shift_lookup.get((entry.day_of_week, entry.start_time, entry.end_time, role_id))
+        if sid is None:
+            entries_unmatched += 1
+            continue
+        matched_shift_ids_by_employee[entry.employee_id].add(sid)
+        entries_applied += 1
+
+    return matched_shift_ids_by_employee, entries_applied, entries_unmatched
+
+
 def add_coverage_constraints(model, shifts, employee_ids_by_shift, x):
     shortfall = {}
     for sid, shift in shifts.items():
@@ -306,7 +350,7 @@ def add_no_double_booking_constraints(model, shifts, shift_ids_by_employee, x):
                     model.Add(x[(eid, sids[i])] + x[(eid, sids[j])] <= 1)
 
 
-def solve_schedule(db, restaurant_id, week_start, time_limit_sec=120):
+def solve_schedule(db, restaurant_id, week_start, time_limit_sec=120, template_id=None, template_weight=None):
     log(f"[1/6] Materializing shifts for restaurant_id={restaurant_id}, week of {week_start}...")
     week_shift_ids = materialize_shifts_for_week(db, restaurant_id, week_start)
     db.commit()
@@ -355,6 +399,20 @@ def solve_schedule(db, restaurant_id, week_start, time_limit_sec=120):
     for name, reason in skipped:
         log(f"  SKIPPED: {name} -- {reason}")
 
+    template_entries_applied = 0
+    template_entries_unmatched = 0
+    if template_id is not None:
+        matched_shift_ids_by_employee, template_entries_applied, template_entries_unmatched = (
+            build_template_matches(db, template_id, shifts)
+        )
+        if matched_shift_ids_by_employee:
+            TemplateAdherenceConstraint(
+                restaurant_id, enabled=True, weight=template_weight,
+                parameters={"matched_shift_ids_by_employee": matched_shift_ids_by_employee},
+            ).apply(model, context)
+        log(f"  Schedule template {template_id}: {template_entries_applied} entries applied, "
+            f"{template_entries_unmatched} unmatched this week")
+
     log("[6/6] Solving...")
     cost_terms = [
         x[(eid, sid)] * round(employees[eid].hourly_rate * shifts[sid].hours * 100)
@@ -398,6 +456,9 @@ def solve_schedule(db, restaurant_id, week_start, time_limit_sec=120):
         "cost": total_cost,
         "shifts": shifts,
         "employees": employees,
+        "template_id": template_id,
+        "template_entries_applied": template_entries_applied,
+        "template_entries_unmatched": template_entries_unmatched,
     }
 
 

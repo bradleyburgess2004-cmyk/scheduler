@@ -26,3 +26,4 @@ class Restaurant(Base):
     shifts = relationship("Shift", back_populates="restaurant")
     restaurant_constraints = relationship("RestaurantConstraint", back_populates="restaurant")
     department_targets = relationship("DepartmentTarget", back_populates="restaurant")
+    schedule_templates = relationship("ScheduleTemplate", back_populates="restaurant")

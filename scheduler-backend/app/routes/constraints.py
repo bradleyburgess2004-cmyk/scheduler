@@ -8,7 +8,7 @@ from app.database import get_db
 
 from app.models.constraint import Constraint
 
-from app.optimizer.constraints.param_specs import CONSTRAINT_PARAM_SPECS
+from app.optimizer.constraints.param_specs import CONSTRAINT_PARAM_SPECS, supports_multiple_rows
 
 from app.schemas.constraint import ConstraintCreate
 from app.schemas.constraint import ConstraintResponse
@@ -23,6 +23,7 @@ def _to_response(constraint: Constraint) -> ConstraintResponse:
     response = ConstraintResponse.model_validate(constraint)
     if constraint.class_name in CONSTRAINT_PARAM_SPECS:
         response.parameter_spec = CONSTRAINT_PARAM_SPECS[constraint.class_name]
+    response.supports_multiple = bool(constraint.class_name) and supports_multiple_rows(constraint.class_name)
     return response
 
 

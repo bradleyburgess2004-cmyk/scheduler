@@ -20,6 +20,7 @@ class ConstraintResponse(ConstraintCreate):
 
     constraint_id: int
     parameter_spec: list[FieldSpecOut] | None = None
+    supports_multiple: bool = False
 
     class Config:
         from_attributes = True

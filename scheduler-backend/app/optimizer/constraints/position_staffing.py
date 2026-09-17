@@ -17,8 +17,7 @@ within one row's parameters, one row per position.
 from app.optimizer.constraints.base import ScheduleConstraint
 from app.optimizer.time_utils import day_of_week_from_name, parse_time
 
-# Fixed, not user-configurable -- same reasoning as
-# MinLeadershipPresentConstraint: this should almost always be
+# Fixed, not user-configurable -- this should almost always be
 # satisfiable, but an unusual day/time combination must not make the
 # whole week's solve infeasible.
 POSITION_STAFFING_SHORTFALL_PENALTY = 1_000_000
@@ -36,8 +35,7 @@ class MinPositionStaffingConstraint(ScheduleConstraint):
             still accepted, treated as a one-item days list.
 
     "Present" means the employee's shift overlaps the window at all
-    (not true continuous per-minute coverage) -- same simplification
-    used by MinLeadershipPresentConstraint. Implemented as a
+    (not true continuous per-minute coverage). Implemented as a
     heavily-penalized shortfall per requirement per day, not a true
     hard constraint.
     """

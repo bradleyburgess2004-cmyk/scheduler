@@ -23,6 +23,7 @@ from app.routes import labor_analytics
 from app.routes import ai_assistant
 from app.routes import time_off_upload
 from app.routes import training_data
+from app.routes import schedule_template_upload
 
 # Create all tables (temporary for development)
 Base.metadata.create_all(bind=engine)
@@ -67,6 +68,7 @@ app.include_router(labor_analytics.router)
 app.include_router(ai_assistant.router)
 app.include_router(time_off_upload.router)
 app.include_router(training_data.router)
+app.include_router(schedule_template_upload.router)
 
 
 @app.get("/")

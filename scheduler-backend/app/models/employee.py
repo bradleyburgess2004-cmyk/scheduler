@@ -78,6 +78,18 @@ class Employee(Base):
         nullable=True
     )
 
+    # 'day', 'night', or 'both' -- a standing per-employee opt-in/out of
+    # night shifts, independent of week-to-week `availability` rows. Not
+    # yet enforced by the solver: CanWorkNightsConstraint currently
+    # defines what "night" means restaurant-wide (night_start/night_end)
+    # but has nowhere to look up which employees are opted out; this
+    # column is that missing per-employee data.
+    shift_preference = Column(
+        String(10),
+        nullable=False,
+        server_default="both"
+    )
+
 
     # Relationships
     restaurant = relationship(

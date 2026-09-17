@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { chatWithAi, confirmAiProposal, type ChatTurn, type PendingSchedule } from '../api'
+import { emitConstraintApplied } from '../aiConstraintEvents'
 
 export interface AiChatMessage {
   role: 'user' | 'assistant'
@@ -41,6 +42,9 @@ export function useAiChat(restaurantId: number | undefined) {
           scheduleStatus: result.pending_schedule ? 'pending' : undefined,
         },
       ])
+      if (result.applied) {
+        emitConstraintApplied()
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {

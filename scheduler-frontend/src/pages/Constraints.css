@@ -13,8 +13,31 @@
 .constraint-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.5rem;
   max-width: 640px;
+}
+
+.constraint-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.constraint-group .constraint-description {
+  margin-top: 0.2rem;
+}
+
+.constraint-group .constraint-card {
+  margin-top: 0.75rem;
+}
+
+.constraint-rule-index {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 0.5rem;
 }
 
 .constraint-card {
@@ -52,6 +75,55 @@
 .badge-warning {
   background: var(--color-warning-bg);
   color: var(--color-warning);
+}
+
+.badge-enabled {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.badge-disabled {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.configured-overview {
+  margin-bottom: 1.5rem;
+  max-width: 900px;
+}
+
+.configured-overview h2 {
+  font-size: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.configured-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: 0.83rem;
+}
+
+.configured-table th,
+.configured-table td {
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.configured-table th {
+  color: var(--color-text-muted);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.configured-table tr:last-child td {
+  border-bottom: none;
 }
 
 .constraint-description {
@@ -164,11 +236,6 @@
 
 .position-staffing {
   margin-bottom: 1rem;
-}
-
-.position-staffing h2 {
-  font-size: 1.1rem;
-  margin-bottom: 0.3rem;
 }
 
 .position-rule-list {
